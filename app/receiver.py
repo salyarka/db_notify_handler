@@ -1,8 +1,3 @@
-"""
-Module containing the implementation of receivers.
-"""
-
-
 class Receiver:
     """Abstract class describing the receiver.
     """

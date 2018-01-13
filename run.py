@@ -2,7 +2,7 @@ import os
 import unittest
 import click
 
-from app import create_app
+from app.manager import Manager
 
 
 # if os.getenv('APP_CONFIG') == 'dev':
@@ -41,7 +41,8 @@ def test():
 def start():
     """CLI command for start app.
     """
-    app = create_app(os.getenv('APP_CONFIG') or 'prod')
+    manager = Manager(os.getenv('APP_CONFIG') or 'prod')
+    manager.run()
 
 # @click.command()
 # def coverage_test():

@@ -9,18 +9,21 @@ class Base:
     """
     DEBUG = False
     TESTING = False
-    RECEIVER = os.environ.get('RECEIVER')
-    RECEIVER_URI = os.environ.get('RECEIVER_URI')
+    DB_PARAMS = {
+        'uri': os.environ.get('DB_URI'),
+        'channel': os.environ.get('DB_CHANNEL'),
+    }
     WORKERS = os.environ.get('WORKERS')
 
     def __init__(self):
-        if self.RECEIVER is None:
+        print('!!! initialization', self.DB_PARAMS)
+        if self.DB_PARAMS['uri'] is None:
             raise AppInitializationException(
-                'Type of receiver is not defined!!!'
+                'DB URI is not defined!!!'
             )
-        if self.RECEIVER_URI is None:
+        if self.DB_PARAMS['channel'] is None:
             raise AppInitializationException(
-                'Receiver URI is not defined!!!'
+                'DB CHANNEL is not defined!!!'
             )
         # app.logger.setLevel(getattr(logging, cls.logging_level))
 
@@ -66,7 +69,7 @@ config_map = {
 
 def get_config(config_name):
     try:
-        return config_map[config_name]
+        return config_map[config_name]()
     except KeyError:
         raise AppInitializationException(
             'Unknown config name: %s.' % config_name

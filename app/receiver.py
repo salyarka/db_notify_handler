@@ -1,31 +1,52 @@
+import gevent
+
+from gevent import monkey
+from gevent.queue import Queue
+from psycopg2 import connect
+
+from .db import PostgresAccess
+
+
+monkey.patch_all()
+
+
 class Receiver:
-    """Abstract class describing the receiver.
+    """Class that implements receiving of notifications from db.
     """
 
-    def __init__(self, connection_params):
+    def __init__(self, config):
         self.timeout = 5
-        self.finish = False
-        self.connection_params = connection_params
+        self.__stop = False
+        self.__conn = connect(config.DB_PARAMS['uri'])
+        self.__db_params = config.DB_PARAMS
+        self.__queue = Queue()
 
-    def start(self):
-        raise NotImplementedError('Must be implemented!!!')
+    def listen(self) -> None:
+        """Starts listening notifications from db.
 
-    def run(self):
-        raise NotImplementedError('Must be implemented!!!')
+        :return:
+        """
+        with PostgresAccess(self.__db_params, self.__conn) as db:
+            db.execute('LISTEN %s;' % self.__db_params['channel'].strip(';'))
+            while not self.__stop:
+                try:
+                    gevent.socket.wait_read(
+                        self.__conn.fileno(), timeout=self.timeout
+                    )
+                except gevent.socket.timeout:
+                    # TODO add logging message
+                    continue
+                self.__conn.poll()
+                while self.__conn.notifies:
+                    notification = self.__conn.notifies.pop()
+                    print('!!! notification', notification)
+                    # TODO add logging message
+                    self.__queue.put(notification)
+                    print('!!! queue', self.__queue)
 
-    def stop(self):
-        self.finish = True
+    def stop(self) -> None:
+        """Stops listening db.
 
-
-class Postgres(Receiver):
-    """Class realizing the receiving notifications from postgres db.
-    """
-
-    def start(self):
-        pass
-
-    def run(self):
-        pass
-
-    def stop(self):
-        pass
+        :return:
+        """
+        self.__stop = True

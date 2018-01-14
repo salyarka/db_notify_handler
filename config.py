@@ -16,7 +16,6 @@ class Base:
     WORKERS = os.environ.get('WORKERS')
 
     def __init__(self):
-        print('!!! initialization', self.DB_PARAMS)
         if self.DB_PARAMS['uri'] is None:
             raise AppInitializationException(
                 'DB URI is not defined!!!'

@@ -15,6 +15,7 @@ class Manager:
     def __start_workers(self):
         print('receiver: %s' % self.receiver)
         print('number of workers: %s' % self.workers)
+        self.receiver.listen()
 
     def __start_receiver(self):
         pass

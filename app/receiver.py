@@ -4,7 +4,7 @@ from gevent import monkey
 from gevent.queue import Queue
 from psycopg2 import connect
 
-from .db import PostgresAccess
+from .db.postgres_access import PostgresAccess
 
 
 monkey.patch_all()

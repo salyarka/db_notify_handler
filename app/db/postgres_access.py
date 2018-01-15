@@ -5,7 +5,7 @@ import psycopg2
 
 from psycopg2.extras import DictCursor, DictRow
 
-from .exceptions import DBException
+from app.exceptions import DBException
 
 
 class PostgresAccess:

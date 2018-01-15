@@ -1,0 +1,16 @@
+version: '2.1'
+
+services:
+
+  db:
+    container_name: notification_db_prod
+
+  app:
+    container_name: notification_handler_prod
+    build:
+      args:
+        APP_CONFIG: prod
+    environment:
+      - APP_CONFIG=prod
+      - DB_URI=postgres://postgres:postgres@notification_db_prod:5432/app_prod
+      - DB_CHANNEL=channel

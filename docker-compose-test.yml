@@ -1,0 +1,18 @@
+version: '2.1'
+
+services:
+
+  db:
+    container_name: notification_db_test
+
+  app:
+    container_name: notification_handler_test
+    build:
+      args:
+        APP_CONFIG: test
+    volumes:
+      - '.:/usr/src/app'
+    environment:
+      - APP_CONFIG=test
+      - DB_URI=postgres://postgres:postgres@notification_db_test:5432/app_test
+      - DB_CHANNEL=channel

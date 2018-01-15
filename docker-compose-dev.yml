@@ -1,0 +1,18 @@
+version: '2.1'
+
+services:
+
+  db:
+    container_name: notification_db_dev
+
+  app:
+    container_name: notification_handler_dev
+    build:
+      args:
+        APP_CONFIG: dev
+    volumes:
+      - '.:/usr/src/app'
+    environment:
+      - APP_CONFIG=dev
+      - DB_URI=postgres://postgres:postgres@notification_db_dev:5432/app_dev
+      - DB_CHANNEL=channel

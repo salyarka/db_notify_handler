@@ -1,0 +1,22 @@
+version: '2.1'
+
+services:
+
+  db:
+    build: ./app/db
+    ports:
+        - 5435:5432  # expose ports - HOST:CONTAINER
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: exit 0
+
+  app:
+    build:
+      context: ./
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db

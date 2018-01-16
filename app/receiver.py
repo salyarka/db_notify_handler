@@ -1,7 +1,6 @@
 import gevent
 
 from gevent import monkey
-from gevent.queue import Queue
 from psycopg2 import connect
 
 from .db.postgres_access import PostgresAccess
@@ -14,12 +13,12 @@ class Receiver:
     """Class that implements receiving of notifications from db.
     """
 
-    def __init__(self, config):
+    def __init__(self, config, queue):
         self.timeout = 5
         self.__stop = False
         self.__conn = connect(config.DB_PARAMS['uri'])
         self.__db_params = config.DB_PARAMS
-        self.__queue = Queue()
+        self.__queue = queue
 
     def listen(self) -> None:
         """Starts listening notifications from db.
@@ -43,6 +42,8 @@ class Receiver:
                     # TODO add logging message
                     self.__queue.put(notification)
                     print('!!! queue', self.__queue)
+                    with open('test_receiver.txt', 'w') as fout:
+                        fout.write(notification)
 
     def stop(self) -> None:
         """Stops listening db.

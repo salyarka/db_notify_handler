@@ -1,5 +1,3 @@
-import threading
-
 import gevent
 
 from gevent.queue import Queue
@@ -19,9 +17,5 @@ class Manager:
         self.workers = config.WORKERS
 
     def run(self):
-        t1 = threading.Thread(target=self.handler.start)
-        t2 = threading.Thread(target=self.receiver.listen)
-        t1.start()
-        t2.start()
-        # gevent.spawn(self.handler.start)
-        # self.receiver.listen()
+        gevent.spawn(self.handler.start)
+        self.receiver.listen()

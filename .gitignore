@@ -3,4 +3,4 @@ __pycache__/
 *.save
 *.pyc
 commands
-scripts/send_message.sh
+scripts/*

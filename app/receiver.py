@@ -42,8 +42,6 @@ class Receiver:
                     # TODO add logging message
                     self.__queue.put(notification)
                     print('!!! queue', self.__queue)
-                    with open('test_receiver.txt', 'w') as fout:
-                        fout.write(notification)
 
     def stop(self) -> None:
         """Stops listening db.

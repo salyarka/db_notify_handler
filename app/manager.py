@@ -17,5 +17,5 @@ class Manager:
         self.workers = config.WORKERS
 
     def run(self):
-        gevent.spawn(self.handler.start)
+        self.handler = gevent.spawn(self.handler.start)
         self.receiver.listen()

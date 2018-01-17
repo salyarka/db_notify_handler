@@ -16,3 +16,4 @@ services:
       - APP_CONFIG=dev
       - DB_URI=postgres://postgres:postgres@notification_db_dev:5432/app_dev
       - DB_CHANNEL=channel
+      - WORKERS=4

@@ -24,6 +24,11 @@ class Base:
             raise AppInitializationException(
                 'DB CHANNEL is not defined!!!'
             )
+        if self.WORKERS is None:
+            raise AppInitializationException(
+                'WORKERS number is not defined!!!'
+            )
+        self.WORKERS = int(self.WORKERS)
         # app.logger.setLevel(getattr(logging, cls.logging_level))
 
     @property

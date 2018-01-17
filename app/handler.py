@@ -3,10 +3,11 @@ from gevent.queue import Empty
 
 class Handler:
 
-    def __init__(self, queue):
+    def __init__(self, queue, pool):
         self.timeout = 5
         self.queue = queue
         self._thread = None
+        self.pool = pool
 
     def __catch(self) -> None:
         """Catches notifications from queue.

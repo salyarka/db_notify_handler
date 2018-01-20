@@ -22,12 +22,18 @@ class Handler:
                 continue
             try:
                 print('get notification: %s' % notification)
-                # task = self.create_task_from_notification(notification)
+                worker = self.pool.get()
+                if worker is None:
+                    print('There are no free workers.')
+                    continue
+                worker.reader.put(notification.payload)
+                # TODO is there a way to set is_busy in worker object???
+                worker.is_busy = True
             # TODO app exception
-            except:
+            except Exception as e:
                 # TODO logging
+                print('except in handler: %s' % e)
                 continue
-            # self.task_handler.handle_task(task)
 
     def start(self):
         """Start catches notifications from queue.

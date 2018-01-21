@@ -18,13 +18,10 @@ class PostgresAccess:
     """
 
     # TODO: add psycopg2.extras.execute_values for inserting multiple rows
-    def __init__(self, config, connection):
+    def __init__(self, connection):
         self.__conn = connection
         self.__conn.autocommit = True
         self.__cursor = self.__conn.cursor(cursor_factory=DictCursor)
-        self.__debug = None
-        self.__slow_queries = None
-        self.__query_threshold = None
         self.__is_transaction = False
 
     def __enter__(self):
@@ -82,35 +79,10 @@ class PostgresAccess:
         :param retrieve_method: method for retrieving data (fetch, fetchall)
         :return: result of the query
         """
-        if not any([self.__debug, self.__slow_queries]):
-            # exec query without output query info to output
-            self.__cursor_execute(query, params, exec_method)
-            result = self.__cursor_retrieve(retrieve_method)
-        else:
-            # exec query with result and query time to output
-            query_string = self.__cursor_execute(query, params, 'mogrify')
-            timestamp = datetime.now()
-            self.__cursor_execute(query, params, exec_method)
-            query_time = (datetime.now() - timestamp).total_seconds()
-            result = self.__cursor_retrieve(retrieve_method)
-            if self.__debug:
-                pass
-                # current_app.logger.debug(
-                #     '~~~ query:\n%s\n### result:\n%s\n*** in %s seconds' % (
-                #         query_string.decode('UTF-8'), result, query_time
-                #     )
-                # )
-            if self.__slow_queries and query_time > self.__query_threshold:
-                pass
-                # current_app.logger.warning(
-                #     '!!! ~~~ SLOW QUERY DETECTED ~~~ !!!'
-                #     '\nQuery: %s\nTime: %s\n' % (query_string, query_time)
-                # )
-        return result
+        self.__cursor_execute(query, params, exec_method)
+        return self.__cursor_retrieve(retrieve_method)
 
-    def __return_autocommit(
-            self, message='All actions was successful.'
-    ) -> None:
+    def __return_autocommit(self) -> None:
         """Method for setting attributes after transaction.
         Called after transaction, in all cases(actions were successful or not).
 
@@ -119,9 +91,6 @@ class PostgresAccess:
         if self.__is_transaction:
             self.__conn.autocommit = True
             self.__is_transaction = False
-            if self.__debug:
-                pass
-                # current_app.logger.info('Transaction closed. %s' % message)
 
     def start_transaction(self) -> None:
         """Method for starting transaction. Example of usage:
@@ -167,7 +136,7 @@ class PostgresAccess:
         """
         if self.__is_transaction:
             self.__conn.rollback()
-            self.__return_autocommit(message='Actions was NOT SUCCESSFUL!')
+            self.__return_autocommit()
 
     def execute(
             self, query: str,

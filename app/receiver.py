@@ -14,37 +14,26 @@ class Receiver:
     """
 
     def __init__(self, config, queue):
-        self.timeout = 5
+        self.__timeout = 5
         self.__stop = False
         self.__conn = connect(config.DB_PARAMS['uri'])
         self.__db_params = config.DB_PARAMS
         self.__queue = queue
 
-    def listen(self) -> None:
+    def start(self):
         """Starts listening notifications from db.
-
-        :return:
         """
-        with PostgresAccess(self.__db_params, self.__conn) as db:
+        with PostgresAccess(self.__conn) as db:
             db.execute('LISTEN %s;' % self.__db_params['channel'].strip(';'))
             while not self.__stop:
                 try:
                     gevent.socket.wait_read(
-                        self.__conn.fileno(), timeout=self.timeout
+                        self.__conn.fileno(), timeout=self.__timeout
                     )
                 except gevent.socket.timeout:
-                    # TODO add logging message
                     continue
                 self.__conn.poll()
                 while self.__conn.notifies:
                     notification = self.__conn.notifies.pop()
-                    print('!!! notification', notification)
-                    # TODO add logging message
+                    print('received notification: %s' % notification)
                     self.__queue.put(notification)
-
-    def stop(self) -> None:
-        """Stops listening db.
-
-        :return:
-        """
-        self.__stop = True

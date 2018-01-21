@@ -9,36 +9,16 @@ class Handler:
         self._thread = None
         self.pool = pool
 
-    def __catch(self) -> None:
+    def start(self):
         """Catches notifications from queue.
-
-        :return:
         """
         while True:
             try:
                 notification = self.queue.get(timeout=self.timeout)
             except Empty:
-                # TODO logging
                 continue
-            try:
-                print('get notification: %s' % notification)
-                worker = self.pool.get()
-                if worker is None:
-                    print('There are no free workers.')
-                    continue
-                worker.reader.put(notification.payload)
-                # TODO is there a way to set is_busy in worker object???
-                worker.is_busy = True
-            # TODO app exception
-            except Exception as e:
-                # TODO logging
-                print('except in handler: %s' % e)
+            worker = self.pool.get()
+            if worker is None:
+                print('there are no free workers')
                 continue
-
-    def start(self):
-        """Start catches notifications from queue.
-
-        :return:
-        """
-        print('start in handler')
-        self.__catch()
+            worker.put_message(notification.payload)

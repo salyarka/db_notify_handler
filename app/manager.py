@@ -13,9 +13,12 @@ class Manager:
     def __init__(self, config_name):
         config = get_config(config_name)
         queue = Queue()
-        self.receiver = Receiver(config, queue)
-        self.handler = Handler(queue, Pool(config.WORKERS))
+        self.__receiver = Receiver(config, queue)
+        self.__handler = Handler(queue, Pool(config.WORKERS))
 
-    def run(self):
-        self.handler = gevent.spawn(self.handler.start)
-        self.receiver.listen()
+    def start(self):
+        """Starts handler for handling messages from receiver and assign them
+        to workers, and receiver for catching messages from db.
+        """
+        self.__handler = gevent.spawn(self.__handler.start)
+        self.__receiver.start()

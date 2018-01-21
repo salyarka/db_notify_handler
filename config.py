@@ -16,20 +16,13 @@ class Base:
     WORKERS = os.environ.get('WORKERS')
 
     def __init__(self):
-        if self.DB_PARAMS['uri'] is None:
+        if not all([
+            self.DB_PARAMS['uri'], self.DB_PARAMS['channel'], self.WORKERS
+        ]):
             raise AppInitializationException(
-                'DB URI is not defined!!!'
-            )
-        if self.DB_PARAMS['channel'] is None:
-            raise AppInitializationException(
-                'DB CHANNEL is not defined!!!'
-            )
-        if self.WORKERS is None:
-            raise AppInitializationException(
-                'WORKERS number is not defined!!!'
+                'Params: DB_URI, DB_CHANNEL, WORKERS must be defined!!!'
             )
         self.WORKERS = int(self.WORKERS)
-        # app.logger.setLevel(getattr(logging, cls.logging_level))
 
     @property
     def logging_level(self):

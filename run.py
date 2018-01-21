@@ -59,7 +59,7 @@ def start():
     """CLI command for start app.
     """
     manager = Manager(os.getenv('APP_CONFIG') or 'prod')
-    manager.run()
+    manager.start()
 
 cli.add_command(test)
 cli.add_command(start)

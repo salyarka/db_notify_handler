@@ -1,12 +1,8 @@
-import gevent
+import select
 
-from gevent import monkey
 from psycopg2 import connect
 
 from .db.postgres_access import PostgresAccess
-
-
-monkey.patch_all()
 
 
 class Receiver:
@@ -26,11 +22,8 @@ class Receiver:
         with PostgresAccess(self.__conn) as db:
             db.execute('LISTEN %s;' % self.__db_params['channel'].strip(';'))
             while not self.__stop:
-                try:
-                    gevent.socket.wait_read(
-                        self.__conn.fileno(), timeout=self.__timeout
-                    )
-                except gevent.socket.timeout:
+                if select.select([self.__conn], [], [], self.__timeout) ==\
+                        ([], [], []):
                     continue
                 self.__conn.poll()
                 while self.__conn.notifies:

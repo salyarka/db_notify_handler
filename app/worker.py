@@ -1,5 +1,4 @@
-import gipc
-import gevent
+from multiprocessing import Process, Pipe
 
 
 class Worker:
@@ -7,7 +6,7 @@ class Worker:
     def __init__(self, number):
         self.number = number
         self.is_busy = False
-        self.__reader, self.__writer = gipc.pipe(duplex=True)
+        self.__reader, self.__writer = Pipe()
         self.__process = None
 
     def __listen(self, writer):
@@ -17,10 +16,9 @@ class Worker:
         :return:
         """
         while True:
-            message = None
-            with gevent.Timeout(5, False) as t:
-                message = writer.get(timeout=t)
-            if message is None:
+            try:
+                message = writer.recv()
+            except EOFError:
                 continue
             print('worker %s get message: %s' % (self.number, message))
 
@@ -28,9 +26,10 @@ class Worker:
         """Spawns new process.
         """
         print('worker %s started' % self.number)
-        self.__process = gipc.start_process(
+        self.__process = Process(
             target=self.__listen, args=(self.__writer,)
         )
+        self.__process.start()
 
     def put_message(self, message):
         """Puts message to the pipe for process.
@@ -38,7 +37,7 @@ class Worker:
         :param message: message for worker
         :return:
         """
-        self.__reader.put(message)
+        self.__reader.send(message)
         self.is_busy = True
 
 

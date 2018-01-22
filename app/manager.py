@@ -1,6 +1,6 @@
-import gevent
+import threading
 
-from gevent.queue import Queue
+from queue import Queue
 
 from config import get_config
 from .receiver import Receiver
@@ -20,5 +20,6 @@ class Manager:
         """Starts handler for handling messages from receiver and assign them
         to workers, and receiver for catching messages from db.
         """
-        self.__handler = gevent.spawn(self.__handler.start)
+        self.__handler = threading.Thread(target=self.__handler.start)
+        self.__handler.start()
         self.__receiver.start()
